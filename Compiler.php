@@ -277,4 +277,18 @@ class Compiler implements CompilerContract
     {
         return (new self($viewPath, $arguments))->compile();
     }
+
+    /**
+     * TODO: Undocumented function
+     *
+     * @param string|array $name
+     * @param string $handlerClass
+     * @return void
+     */
+    public static function registerDirective(string|array $name, string $handlerClass): void
+    {
+        $name = is_array($name) ? join('|', $name) : $name;
+
+        static::$directiveHandlers[$name] = $handlerClass;
+    }
 }

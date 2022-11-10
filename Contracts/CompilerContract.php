@@ -78,4 +78,13 @@ interface CompilerContract
      * @return string
      */
     public static function compileView(string $viewPath, array $arguments = []): string;
+
+    /**
+     * TODO: Undocumented function
+     *
+     * @param string|array $name
+     * @param string $handlerClass
+     * @return void
+     */
+    public static function registerDirective(string|array $name, string $handlerClass): void;
 }
