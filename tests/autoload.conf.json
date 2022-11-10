@@ -1,0 +1,6 @@
+{
+    "mapping": {
+        "Framework\\Calibri\\": "..\\",
+        "Tests\\": ""
+    }
+}
