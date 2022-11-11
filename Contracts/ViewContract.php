@@ -5,15 +5,16 @@ namespace Framework\Calibri\Contracts;
 interface ViewContract
 {
     /**
-     * TODO: Undocumented function
+     * Инициализировать новый объект представления.
      *
-     * @param string $view
-     * @param array<mixed> $arguments
+     * @param string $viewName Имя представления с пространством имен или без него.
+     * @param array<mixed> $arguments Аргументы для представления.
      */
-    public function __construct(string $view, array $arguments = []);
+    public function __construct(string $viewName, array $arguments = []);
 
     /**
-     * TODO: Undocumented function
+     * Добавить привязку для пространства имен.
+     * Если привязка для пространство имен уже есть, то она будет заменена.
      *
      * @param string $namespace
      * @param string $path
@@ -22,14 +23,15 @@ interface ViewContract
     public static function addNamespace(string $namespace, string $path);
 
     /**
-     * TODO: Undocumented function
+     * Получить скомпилированный контент представления.
      *
      * @return string
      */
     public function getContent(): string;
 
     /**
-     * TODO: Undocumented function
+     * Привести объект представления к строке.
+     * То же самое, что и вызов getContent().
      *
      * @return string
      */

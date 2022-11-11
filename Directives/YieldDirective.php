@@ -8,27 +8,20 @@ use Framework\Calibri\Contracts\DirectiveHandlerContract;
 class YieldDirective implements DirectiveHandlerContract
 {
     /**
-     * TODO: Undocumented function
+     * Инициализировать обработчик.
      *
-     * @param Framework\Calibri\Compiler $compiler
      * @param string $directive
      * @param array<string> $args
      */
     public function __construct(
         /**
-         * TODO: Undocumented variable
-         *
-         * @var Framework\Calibri\Compiler
-         */
-        protected Compiler $compiler,
-        /**
-         * TODO: Undocumented variable
+         * Название обрабатываемой директивы.
          *
          * @var string
          */
         protected string $directive,
         /**
-         * TODO: Undocumented variable
+         * Аргументы директивы.
          *
          * @var array<string>
          */
@@ -40,9 +33,9 @@ class YieldDirective implements DirectiveHandlerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Скомпилировать директиву.
      *
-     * @return string
+     * @return string Строка для замены вызова директивы на php код.
      */
     public function execute(): string
     {
@@ -50,10 +43,12 @@ class YieldDirective implements DirectiveHandlerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Пишет в документ контент секции.
      *
-     * @param string $sectionName
-     * @param string|null $default
+     * Зависит от директивы Framework\Calibri\Directives\SectionDirective.
+     *
+     * @param string $sectionName Название секции
+     * @param string|null $default Значение по умолчанию
      * @return void
      */
     public static function pasteSection(string $sectionName, ?string $default = null): void

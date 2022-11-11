@@ -9,27 +9,20 @@ use Framework\Calibri\View;
 class ExtendsDirective implements DirectiveHandlerContract
 {
     /**
-     * TODO: Undocumented function
+     * Инициализировать обработчик.
      *
-     * @param Framework\Calibri\Compiler $compiler
      * @param string $directive
      * @param array<string> $args
      */
     public function __construct(
         /**
-         * TODO: Undocumented variable
-         *
-         * @var Framework\Calibri\Compiler
-         */
-        protected Compiler $compiler,
-        /**
-         * TODO: Undocumented variable
+         * Название обрабатываемой директивы.
          *
          * @var string
          */
         protected string $directive,
         /**
-         * TODO: Undocumented variable
+         * Аргументы директивы.
          *
          * @var array<string>
          */
@@ -39,23 +32,23 @@ class ExtendsDirective implements DirectiveHandlerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Скомпилировать директиву.
      *
-     * @return string
+     * @return string Строка для замены вызова директивы на php код.
      */
     public function execute(): string
     {
-        $this->compiler->onEOF(
-            fn () => $this->compiler->pushContent(Compiler::wrapPHP(sprintf('%s::extendTemplate(%s)', static::class, ...$this->args)))
+        Compiler::onEOF(
+            fn ($compiler) => $compiler->pushContent(Compiler::wrapPHP(sprintf('%s::extendTemplate(%s)', static::class, ...$this->args)))
         );
 
         return '';
     }
 
     /**
-     * TODO: Undocumented function
+     * Пишет в документ контент шаблона.
      *
-     * @param string $templateView
+     * @param string $templateView Название представления шаблона с пространством имен или без него.
      * @return void
      */
     public static function extendTemplate(string $templateView): void

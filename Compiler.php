@@ -3,6 +3,7 @@
 namespace Framework\Calibri;
 
 use Framework\Calibri\Contracts\CompilerContract;
+use Framework\Calibri\Contracts\DirectiveHandlerContract;
 use Framework\Calibri\Directives\ConditionDirective;
 use Framework\Calibri\Directives\ExtendsDirective;
 use Framework\Calibri\Directives\IncludeDirective;
@@ -12,14 +13,20 @@ use Framework\Calibri\Directives\YieldDirective;
 class Compiler implements CompilerContract
 {
     /**
-     * TODO: Undocumented const
+     * Путь к папке для хранения кэша скомпилированных представлений.
+     *
+     * Используется константа APP_ROOT_PATH, поэтому она должна быть инициализирована
+     * в корне проекта, до того, как подключается компилятор представлений.
      *
      * @var string
      */
     protected const CACHE_PATH = APP_ROOT_PATH . '/storage/framework/cache/views';
 
     /**
-     * TODO: Undocumented variable
+     * Список зарегистрированных обработчиков директив.
+     *
+     * По умолчанию указаны базовые обработчики. Их отключение может привести к
+     * неработоспособности компилятора.
      *
      * @var array<string, string>
      */
@@ -32,74 +39,91 @@ class Compiler implements CompilerContract
     ];
 
     /**
-     * TODO: Undocumented variable
+     * Указывает но то, есть ли уже скомпилированный файл для этого представления в кэше.
      *
      * @var boolean
      */
     protected bool $cached;
 
     /**
-     * TODO: Undocumented variable
+     * Контент представления во время компиляции.
      *
      * @var string
      */
     protected string $content;
 
     /**
-     * TODO: Undocumented variable
+     * Информация о стэке вызовов компилятора.
      *
-     * @var array<mixed>
+     * @var array<array<string, mixed>>
      */
-    protected array $EOFCallbacks = [];
+    protected static array $stack = [];
 
     /**
-     * TODO: Undocumented variable
+     * Инициализация компилятора для представления.
      *
-     * @var array<string, mixed>
-     */
-    protected array $shared = [];
-
-    /**
-     * TODO: Undocumented function
-     *
-     * @param string $viewPath
-     * @param array<mixed> $arguments
+     * @param string $viewPath Абсолютный путь к представлению в ФС.
+     * @param array<mixed> $arguments Аргументы для представления
+     *                                (Доступны и тем представлениям,
+     *                                которые будут вызваны внутри, например,
+     *                                шаблонам и подключенным представлениям).
      */
     public function __construct(
+        /**
+         * Абсолютный путь к представлению в ФС.
+         *
+         * @var string
+         */
         protected string $viewPath,
-        protected array $arguments = [],
+        array $arguments = [],
     ) {
-        $this->cached = file_exists($this->getCacheFilePath()) && false; // TODO: Enable cache
+        $this->cached = file_exists($this->getCacheFilePath());
 
-        $this->content = $this->cached
-            ? file_get_contents($this->getCacheFilePath())
-            : file_get_contents($this->viewPath);
+        $this->content = !$this->cached
+            ? file_get_contents($this->viewPath)
+            : '';
+
+        static::$stack[] = [
+            'arguments' => $arguments,
+            'EOFCallbacks' => [],
+        ];
     }
 
     /**
-     * TODO: Undocumented function
+     * Дестрокутор для компилятор - удаляет свой стэк.
+     */
+    public function __destruct()
+    {
+        array_pop(static::$stack);
+    }
+
+    /**
+     * Компилирует представление, сохраняет в кэш и возвращает выполненный результат.
      *
-     * @param string $viewPath
      * @return string
      */
     public function compile(): string
     {
+        // Если представление уже было скомпилировано, то выполняем его из кэша и возвращаем.
         if ($this->cached) {
-            return $this->content;
+            return $this->getExecutedFileContent($this->getCacheFilePath());
         }
 
+        // Обрабатываем директивы.
         $this->content = preg_replace_callback(
             '/\[\[([^:\s]*)(\s?:\s?(.*?))?\]\]/',
             static::class . '::directiveHandler',
             file_get_contents($this->viewPath)
         );
 
+        // Применяем EOF колбэк.
         $this->content .= array_reduce(
-            $this->EOFCallbacks,
-            fn ($postContent, $callback) => $postContent . $callback(),
+            static::$stack[array_key_last(static::$stack)]['EOFCallbacks'],
+            fn ($postContent, $callback) => $postContent . $callback($this),
             ''
         );
 
+        // Раскрываем интерполирование переменных в представлениях.
         $this->content = preg_replace_callback(
             '/{{(.*?)}}/',
             fn ($matches) => Compiler::wrapPHPEcho(trim($matches[1])),
@@ -108,41 +132,18 @@ class Compiler implements CompilerContract
 
 
 
+        // Сохраняем скомпилированное представление в файл.
         file_put_contents($this->getCacheFilePath(), trim($this->content));
 
-        return $this->getExecutedContent($this->getCacheFilePath());
+        // Выполняем из кэша и возвращаем.
+        return $this->getExecutedFileContent($this->getCacheFilePath());
     }
 
     /**
-     * TODO: Undocumented function
+     * Обрабатывает вызов директивы в представлении.
      *
-     * @param string $key
-     * @param mixed $val
-     * @return void
-     */
-    public function share(string $key, mixed $val): void
-    {
-        $this->shared[$key] = $val;
-    }
-
-    /**
-     * TODO: Undocumented function
-     *
-     * @param string $key
-     * @return mixed
-     */
-    public function getShared(string $key): mixed
-    {
-        key_exists($key, $this->shared)
-            ? $this->shared[$key]
-            : null;
-    }
-
-    /**
-     * TODO: Undocumented function
-     *
-     * @param array<string> $directiveData
-     * @return string
+     * @param array<string> $directiveData информации о директиве.
+     * @return string PHP код (или другая строка) которая должна заменить вызов директивы.
      */
     protected function directiveHandler(array $directiveData): string
     {
@@ -157,13 +158,13 @@ class Compiler implements CompilerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Запускает обработчик директивы и передает ей аргументы.
      *
-     * @param string $directive
-     * @param array $args
-     * @return string
+     * @param string $directive Одно из названий директивы в списке привязок.
+     * @param array<mixed> $args Аргументы для выполнения директивы.
+     * @return string PHP код (или другая строка) которая должна заменить вызов директивы.
      */
-    protected function applyDirective(string $directive, array $args): string
+    protected function applyDirective(string $directive, array $args = []): string
     {
         $handlerClass = $this->getDirectiveHandler($directive);
         if (is_null($handlerClass)) {
@@ -172,16 +173,16 @@ class Compiler implements CompilerContract
             );
         }
 
-        $directiveHandler = new $handlerClass($this, $directive, $args);
+        $directiveHandler = new $handlerClass($directive, $args);
 
         return $directiveHandler->execute();
     }
 
     /**
-     * TODO: Undocumented function
+     * Получить класс-обработчик для директивы по ее названию.
      *
-     * @param string $directive
-     * @return string|null
+     * @param string $directive Название директивы
+     * @return string|null Если директива зарегистрирована вернется строка, в противном случае null
      */
     protected function getDirectiveHandler(string $directive): ?string
     {
@@ -195,7 +196,7 @@ class Compiler implements CompilerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Поулчить хэш для компилируемого файла.
      *
      * @return string
      */
@@ -205,36 +206,43 @@ class Compiler implements CompilerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Выполнить файл из кэша, раскрыв для него аргументы стэка.
      *
-     * @param string $cachedFile
-     * @return string
+     * @param string $___cachedFile Абсолютный путь к файлу кэша.
+     * @return string Контент выполненного представления.
      */
-    protected function getExecutedContent(string $cachedFile): string
+    protected function getExecutedFileContent(string $___cachedFile): string
     {
         ob_start();
-        extract($this->arguments);
-        require($cachedFile);
+        extract(array_reduce(
+            static::$stack,
+            fn ($args, $stackArgs) => [
+                ...$args,
+                ...$stackArgs['arguments'],
+            ],
+            []
+        ));
+        require($___cachedFile);
 
         return ob_get_clean();
     }
 
     /**
-     * TODO: Undocumented function
+     * Добавляет колбэк на событие EOF, вызываемое по окончанию первичной компиляции файла.
      *
      * @param \Closure $callback
      * @return void
      */
-    public function onEOF(\Closure $callback): void
+    public static function onEOF(\Closure $callback): void
     {
-        $this->EOFCallbacks[] = $callback;
+        static::$stack[array_key_last(static::$stack)]['EOFCallbacks'][] = $callback;
     }
 
     /**
-     * TODO: Undocumented function
+     * Добавить контент в результирующий файл представления.
      *
-     * @param string $postContent
-     * @param boolean $EOL
+     * @param string $postContent Контент для добавления
+     * @param boolean $EOL Закончить вставку переносом строки
      * @return void
      */
     public function pushContent(string $postContent, bool $EOL = true): void
@@ -243,10 +251,12 @@ class Compiler implements CompilerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Обернуть php код в теги.
      *
-     * @param string|array $code
-     * @return string
+     * @param string|array $code Код для обертывания. Если аргумента является массивом,
+     *                           то для каждой строки будет добавлена точка с запятой
+     *                           при ее отсутствии.
+     * @return string php код, обернутый в теги.
      */
     public static function wrapPHP(string|array $code): string
     {
@@ -256,10 +266,10 @@ class Compiler implements CompilerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Обернуть php выражение в тег вставки.
      *
-     * @param string $expression
-     * @return string
+     * @param string $expression Php выражение.
+     * @return string Php выражение обернутое в тег вставки.
      */
     public static function wrapPHPEcho(string $expression): string
     {
@@ -267,11 +277,11 @@ class Compiler implements CompilerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Компилирует представление с переданными аргументами.
      *
-     * @param string $viewPath
-     * @param array<mixed> $arguments
-     * @return string
+     * @param string $viewPath Абсолютный путь до файла представления.
+     * @param array<mixed> $arguments Аргументы для представления.
+     * @return string Выполненное представление.
      */
     public static function compileView(string $viewPath, array $arguments = []): string
     {
@@ -279,15 +289,26 @@ class Compiler implements CompilerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Регистрирует новую директиву.
      *
-     * @param string|array $name
-     * @param string $handlerClass
+     * Если обработчик для директивы с таким параметром $name уже существует, то он будет заменен,
+     * но если существует несколько обработчиков, включающие в себя $name, то исполняться будет
+     * тот, который добавлен раньше.
+     *
+     * @param string|array $name Директивы для обработки.
+     * @param string $handlerClass Класс-обработчик.
      * @return void
+     * @throws \InvalidArgumentException
      */
     public static function registerDirective(string|array $name, string $handlerClass): void
     {
         $name = is_array($name) ? join('|', $name) : $name;
+
+        if (!is_subclass_of($handlerClass, DirectiveHandlerContract::class)) {
+            throw new \InvalidArgumentException(
+                "Класс-обработчик директив [{$handlerClass}] должен реализовывать интерфейс [" . DirectiveHandlerContract::class . ']'
+            );
+        }
 
         static::$directiveHandlers[$name] = $handlerClass;
     }

@@ -2,23 +2,20 @@
 
 namespace Framework\Calibri\Contracts;
 
-use Framework\Calibri\Compiler;
-
 interface DirectiveHandlerContract
 {
     /**
-     * TODO: Undocumented function
+     * Инициализировать обработчик.
      *
-     * @param Framework\Calibri\Compiler $compiler
      * @param string $directive
      * @param array<string> $args
      */
-    public function __construct(Compiler $compiler, string $directive, array $args);
+    public function __construct(string $directive, array $args);
 
     /**
-     * TODO: Undocumented function
+     * Скомпилировать директиву.
      *
-     * @return string
+     * @return string Строка для замены вызова директивы на php код.
      */
     public function execute(): string;
 }

@@ -7,21 +7,21 @@ use Framework\Calibri\Contracts\ViewContract;
 class View implements ViewContract
 {
     /**
-     * TODO: Undocumented const
+     * Расширение файлов для представлений.
      *
      * @var string
      */
     protected const VIEW_EXT = '.clbr.php';
 
     /**
-     * TODO: Undocumented const
+     * Пространство имен для представлений по умолчанию.
      *
      * @var string
      */
     protected const DEFAULT_NAMESPACE = '__app_views';
 
     /**
-     * TODO: Undocumented variable
+     * Привязки пространств имен к папкам с представлениями.
      *
      * @var array<string, string>
      */
@@ -30,42 +30,42 @@ class View implements ViewContract
     ];
 
     /**
-     * TODO: Undocumented variable
+     * Пространство имен представления.
      *
      * @var string
      */
     protected string $viewNamespace;
 
     /**
-     * TODO: Undocumented variable
+     * Путь к представлению относительно пространства имен.
      *
      * @var string
      */
     protected string $viewRelativePath;
 
     /**
-     * TODO: Undocumented variable
+     * Абсолютный путь к представлению в ФС.
      *
      * @var string
      */
     protected string $viewAbsolutePath;
 
     /**
-     * TODO: Undocumented function
+     * Инициализировать новый объект представления.
      *
-     * @param string $view
-     * @param array<mixed> $arguments
+     * @param string $viewName Имя представления с пространством имен или без него.
+     * @param array<mixed> $arguments Аргументы для представления.
      */
     public function __construct(
         /**
-         * TODO: Undocumented variable
+         * Имя представления с пространством имен или без него.
          *
          * @var string
          */
         protected string $viewName,
 
         /**
-         * TODO: Undocumented variable
+         * Аргументы для представления.
          *
          * @var array<mixed>
          */
@@ -108,7 +108,8 @@ class View implements ViewContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Добавить привязку для пространства имен.
+     * Если привязка для пространство имен уже есть, то она будет заменена.
      *
      * @param string $namespace
      * @param string $path
@@ -120,7 +121,7 @@ class View implements ViewContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Получить скомпилированный контент представления.
      *
      * @return string
      */
@@ -130,7 +131,8 @@ class View implements ViewContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Привести объект представления к строке.
+     * То же самое, что и вызов getContent().
      *
      * @return string
      */

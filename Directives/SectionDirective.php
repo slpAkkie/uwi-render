@@ -8,41 +8,34 @@ use Framework\Calibri\Contracts\DirectiveHandlerContract;
 class SectionDirective implements DirectiveHandlerContract
 {
     /**
-     * TODO: Undocumented variable
+     * Список секций с их контентом.
      *
      * @var array<string, string>
      */
     protected static array $sections = [];
 
     /**
-     * TODO: Undocumented variable
+     * Последняя открытая секция.
      *
      * @var string|null
      */
     protected static ?string $openedSection = null;
 
     /**
-     * TODO: Undocumented function
+     * Инициализировать обработчик.
      *
-     * @param Framework\Calibri\Compiler $compiler
      * @param string $directive
      * @param array<string> $args
      */
     public function __construct(
         /**
-         * TODO: Undocumented variable
-         *
-         * @var Framework\Calibri\Compiler
-         */
-        protected Compiler $compiler,
-        /**
-         * TODO: Undocumented variable
+         * Название обрабатываемой директивы.
          *
          * @var string
          */
         protected string $directive,
         /**
-         * TODO: Undocumented variable
+         * Аргументы директивы.
          *
          * @var array<string>
          */
@@ -52,9 +45,9 @@ class SectionDirective implements DirectiveHandlerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Скомпилировать директиву.
      *
-     * @return string
+     * @return string Строка для замены вызова директивы на php код.
      */
     public function execute(): string
     {
@@ -65,9 +58,9 @@ class SectionDirective implements DirectiveHandlerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Обрабатывает директиву section.
      *
-     * @return string
+     * @return string Строка для замены вызова директивы на php код.
      */
     protected function getOpenSectionCode(): string
     {
@@ -78,9 +71,9 @@ class SectionDirective implements DirectiveHandlerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Обрабатывает директиву endsection.
      *
-     * @return string
+     * @return string Строка для замены вызова директивы на php код.
      */
     protected function getCloseSectionCode(): string
     {
@@ -88,7 +81,7 @@ class SectionDirective implements DirectiveHandlerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Записывает контент секции.
      *
      * @param string $sectionName
      * @param string $content
@@ -100,7 +93,7 @@ class SectionDirective implements DirectiveHandlerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Открывает запись секции.
      *
      * @param string $sectionName
      * @return void
@@ -112,22 +105,21 @@ class SectionDirective implements DirectiveHandlerContract
     }
 
     /**
-     * TODO: Undocumented function
+     * Закрывает запись секции.
      *
      * @return void
      */
     public static function closeSection(): void
     {
-        $sectionContent = ob_get_clean();
-        static::$sections[static::$openedSection] = $sectionContent;
+        static::addSection(static::$openedSection, ob_get_clean());
         static::$openedSection = null;
     }
 
     /**
-     * TODO: Undocumented function
+     * Возвращает контент секции.
      *
-     * @param string $sectionName
-     * @return string|null
+     * @param string $sectionName Название секции.
+     * @return string|null Строка, если секция есть, в противном случае null.
      */
     public static function getSection(string $sectionName): ?string
     {
