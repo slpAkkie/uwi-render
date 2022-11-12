@@ -1,7 +1,5 @@
 <?php
 
-namespace Tests;
-
 use Framework\Calibri\View;
 use TestModule\Test;
 
