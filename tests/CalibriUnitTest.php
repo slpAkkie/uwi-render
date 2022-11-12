@@ -3,7 +3,7 @@
 namespace Tests;
 
 use Framework\Calibri\View;
-use Tests\Test;
+use TestModule\Test;
 
 class CalibriUnitTest
 {
