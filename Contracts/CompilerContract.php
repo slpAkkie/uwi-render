@@ -1,6 +1,6 @@
 <?php
 
-namespace Framework\Calibri\Contracts;
+namespace Services\Calibri\Contracts;
 
 interface CompilerContract
 {

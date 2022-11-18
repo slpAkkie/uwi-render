@@ -1,8 +1,8 @@
 <?php
 
-namespace Framework\Calibri;
+namespace Services\Calibri;
 
-use Framework\Calibri\Contracts\ViewContract;
+use Services\Calibri\Contracts\ViewContract;
 
 class View implements ViewContract
 {

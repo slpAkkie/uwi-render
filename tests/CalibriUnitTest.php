@@ -1,6 +1,6 @@
 <?php
 
-use Framework\Calibri\View;
+use Services\Calibri\View;
 use TestModule\Test;
 
 class CalibriUnitTest

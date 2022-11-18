@@ -1,9 +1,9 @@
 <?php
 
-namespace Framework\Calibri\Directives;
+namespace Services\Calibri\Directives;
 
-use Framework\Calibri\Compiler;
-use Framework\Calibri\Contracts\DirectiveHandlerContract;
+use Services\Calibri\Compiler;
+use Services\Calibri\Contracts\DirectiveHandlerContract;
 
 class YieldDirective implements DirectiveHandlerContract
 {
@@ -45,7 +45,7 @@ class YieldDirective implements DirectiveHandlerContract
     /**
      * Пишет в документ контент секции.
      *
-     * Зависит от директивы Framework\Calibri\Directives\SectionDirective.
+     * Зависит от директивы Services\Calibri\Directives\SectionDirective.
      *
      * @param string $sectionName Название секции
      * @param string|null $default Значение по умолчанию

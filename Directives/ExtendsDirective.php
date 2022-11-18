@@ -1,10 +1,10 @@
 <?php
 
-namespace Framework\Calibri\Directives;
+namespace Services\Calibri\Directives;
 
-use Framework\Calibri\Compiler;
-use Framework\Calibri\Contracts\DirectiveHandlerContract;
-use Framework\Calibri\View;
+use Services\Calibri\Compiler;
+use Services\Calibri\Contracts\DirectiveHandlerContract;
+use Services\Calibri\View;
 
 class ExtendsDirective implements DirectiveHandlerContract
 {

@@ -1,14 +1,14 @@
 <?php
 
-namespace Framework\Calibri;
+namespace Services\Calibri;
 
-use Framework\Calibri\Contracts\CompilerContract;
-use Framework\Calibri\Contracts\DirectiveHandlerContract;
-use Framework\Calibri\Directives\ConditionDirective;
-use Framework\Calibri\Directives\ExtendsDirective;
-use Framework\Calibri\Directives\IncludeDirective;
-use Framework\Calibri\Directives\SectionDirective;
-use Framework\Calibri\Directives\YieldDirective;
+use Services\Calibri\Contracts\CompilerContract;
+use Services\Calibri\Contracts\DirectiveHandlerContract;
+use Services\Calibri\Directives\ConditionDirective;
+use Services\Calibri\Directives\ExtendsDirective;
+use Services\Calibri\Directives\IncludeDirective;
+use Services\Calibri\Directives\SectionDirective;
+use Services\Calibri\Directives\YieldDirective;
 
 class Compiler implements CompilerContract
 {
