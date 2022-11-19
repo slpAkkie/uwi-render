@@ -22,6 +22,8 @@ class Compiler implements CompilerContract
      */
     protected const CACHE_PATH = APP_ROOT_PATH . '/storage/framework/cache/views';
 
+    protected const PARAM_SEPARATOR = ';';
+
     /**
      * Список зарегистрированных обработчиков директив.
      *
@@ -104,9 +106,11 @@ class Compiler implements CompilerContract
      */
     public function compile(): string
     {
+        $cacheFilePath = $this->getCacheFilePath();
+
         // Если представление уже было скомпилировано, то выполняем его из кэша и возвращаем.
         if ($this->cached) {
-            return $this->getExecutedFileContent($this->getCacheFilePath());
+            return $this->getExecutedFileContent($cacheFilePath);
         }
 
         // Обрабатываем директивы.
@@ -133,10 +137,16 @@ class Compiler implements CompilerContract
 
 
         // Сохраняем скомпилированное представление в файл.
-        file_put_contents($this->getCacheFilePath(), trim($this->content));
+        file_put_contents($cacheFilePath, trim($this->content));
 
         // Выполняем из кэша и возвращаем.
-        return $this->getExecutedFileContent($this->getCacheFilePath());
+        $content = $this->getExecutedFileContent($cacheFilePath);
+
+        if (defined('APP_DEBUG') && APP_DEBUG) {
+            unlink($cacheFilePath);
+        }
+
+        return $content;
     }
 
     /**
@@ -151,7 +161,7 @@ class Compiler implements CompilerContract
 
         $args = array_map(
             fn ($arg) => trim($arg),
-            key_exists(3, $directiveData) ? explode('&', trim($directiveData[3])) : []
+            key_exists(3, $directiveData) ? explode(self::PARAM_SEPARATOR, trim($directiveData[3])) : []
         );
 
         return $this->applyDirective($directive, $args);
