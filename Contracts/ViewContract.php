@@ -20,7 +20,7 @@ interface ViewContract
      * @param string $path
      * @return void
      */
-    public static function addNamespace(string $namespace, string $path);
+    public static function addNamespace(string $namespace, string $path): void;
 
     /**
      * Получить скомпилированный контент представления.
