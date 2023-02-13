@@ -36,7 +36,7 @@ class ConditionDirective implements DirectiveHandlerContract
      * @return string Строка для замены вызова директивы на php код.
      */
     public function execute(): string
-    {;
+    {
         return match ($this->directive) {
             'if' => Compiler::wrapPHP(sprintf('if (%s):', $this->args[0])),
             'elseif' => Compiler::wrapPHP(sprintf('elseif (%s):', $this->args[0])),

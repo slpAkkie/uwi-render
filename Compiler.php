@@ -7,6 +7,7 @@ use Services\Calibri\Contracts\DirectiveHandlerContract;
 use Services\Calibri\Directives\ConditionDirective;
 use Services\Calibri\Directives\ExtendsDirective;
 use Services\Calibri\Directives\IncludeDirective;
+use Services\Calibri\Directives\LoopDirectives;
 use Services\Calibri\Directives\SectionDirective;
 use Services\Calibri\Directives\YieldDirective;
 
@@ -36,6 +37,7 @@ class Compiler implements CompilerContract
         'yield' => YieldDirective::class,
         'include' => IncludeDirective::class,
         'if|elseif|else|endif' => ConditionDirective::class,
+        'foreach|endforeach' => LoopDirectives::class,
     ];
 
     /**
